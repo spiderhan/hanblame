@@ -1,0 +1,7 @@
+# Local notes, not part of the extension
+PROMPT.md
+.claude/settings.local.json
+
+# Packaging output
+*.vsix
+node_modules/
