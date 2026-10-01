@@ -1,0 +1,238 @@
+{
+  "name": "hanblame",
+  "displayName": "Hanblame",
+  "description": "Inline git blame on the current line. No account, no sign-in, no network.",
+  "version": "0.6.1",
+  "publisher": "hanmade",
+  "license": "MIT",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "hanblame.toggle",
+        "title": "Hanblame: Toggle inline blame"
+      },
+      {
+        "command": "hanblame.copySha",
+        "title": "Hanblame: Copy commit SHA for current line"
+      },
+      {
+        "command": "hanblame.showCommit",
+        "title": "Hanblame: Show commit for current line"
+      },
+      {
+        "command": "hanblame.toggleHeatmap",
+        "title": "Hanblame: Toggle gutter heatmap"
+      },
+      {
+        "command": "hanblame.toggleCodeLens",
+        "title": "Hanblame: Toggle CodeLens above functions"
+      },
+      {
+        "command": "hanblame.diagnose",
+        "title": "Hanblame: Run diagnostics"
+      },
+      {
+        "command": "hanblame.refreshHistory",
+        "title": "Refresh",
+        "category": "Hanblame",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "hanblame.copyShaFromTree",
+        "title": "Copy commit SHA",
+        "category": "Hanblame"
+      },
+      {
+        "command": "hanblame.openRevision",
+        "title": "Open file at this revision",
+        "category": "Hanblame",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "hanblame.diffWithWorking",
+        "title": "Compare with working copy",
+        "category": "Hanblame",
+        "icon": "$(git-compare)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "hanblame",
+          "title": "Hanblame",
+          "icon": "icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "hanblame": [
+        {
+          "id": "hanblame.fileHistory",
+          "name": "File History",
+          "icon": "icon.svg",
+          "contextualTitle": "Hanblame"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "hanblame.fileHistory",
+        "contents": "Open a file that lives in a git repository to see the commits that touched it.\n[Run diagnostics](command:hanblame.diagnose)",
+        "when": "!hanblame.hasHistory"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "hanblame.refreshHistory",
+          "when": "view == hanblame.fileHistory",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "hanblame.diffWithWorking",
+          "when": "view == hanblame.fileHistory && viewItem == hanblame.commit",
+          "group": "inline@1"
+        },
+        {
+          "command": "hanblame.openRevision",
+          "when": "view == hanblame.fileHistory && viewItem == hanblame.commit",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hanblame.diffWithWorking",
+          "when": "view == hanblame.fileHistory && viewItem == hanblame.commit",
+          "group": "navigation@2"
+        },
+        {
+          "command": "hanblame.copyShaFromTree",
+          "when": "view == hanblame.fileHistory && viewItem == hanblame.commit",
+          "group": "9_cutcopypaste"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Hanblame",
+      "properties": {
+        "hanblame.gitPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Full path to the git executable. Leave empty to search the usual places. Set this if diagnostics report that git could not be found — run `which git` in a terminal and paste the result."
+        },
+        "hanblame.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the inline blame annotation on the current line."
+        },
+        "hanblame.format": {
+          "type": "string",
+          "default": "${author}, ${date} • ${message}",
+          "markdownDescription": "Template for the annotation. Placeholders: `${author}`, `${date}`, `${message}`, `${sha}`, `${shortSha}`."
+        },
+        "hanblame.dateStyle": {
+          "type": "string",
+          "enum": [
+            "relative",
+            "absolute"
+          ],
+          "default": "relative",
+          "description": "Show dates as '3 days ago' or as a calendar date."
+        },
+        "hanblame.useYou": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show 'You' instead of your own name when the commit author matches your git user.email."
+        },
+        "hanblame.maxMessageLength": {
+          "type": "number",
+          "default": 60,
+          "description": "Truncate the commit message in the annotation after this many characters. 0 disables truncation."
+        },
+        "hanblame.codeLens": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show a blame summary above each function, method and class. Off by default because it adds a line above every symbol in the file."
+        },
+        "hanblame.codeLensKinds": {
+          "type": "array",
+          "default": [
+            "function",
+            "method",
+            "class",
+            "constructor"
+          ],
+          "items": {
+            "type": "string",
+            "enum": [
+              "function",
+              "method",
+              "class",
+              "constructor",
+              "interface",
+              "enum",
+              "namespace",
+              "module",
+              "struct",
+              "property"
+            ]
+          },
+          "uniqueItems": true,
+          "description": "Which kinds of symbol get a CodeLens."
+        },
+        "hanblame.heatmap": {
+          "type": "boolean",
+          "default": true,
+          "description": "Colour the gutter by how recently each line changed — strongest for the newest, fading as code gets older."
+        },
+        "hanblame.heatmapColor": {
+          "type": "string",
+          "default": "#3FB950",
+          "markdownDescription": "Base colour for the heatmap, as a hex value. The eight steps are derived from it, keeping the hue and varying lightness. Try `#3FB950` green, `#D97706` amber, `#3B82F6` blue, `#A855F7` purple or `#8B949E` grey."
+        },
+        "hanblame.heatmapMaxAge": {
+          "type": "number",
+          "default": 365,
+          "description": "Age in days at which a line reaches the faintest colour. Lower this on a fast-moving repo."
+        },
+        "hanblame.historyLimit": {
+          "type": "number",
+          "default": 50,
+          "description": "How many commits to list in the File History view."
+        },
+        "hanblame.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Also show the current line's blame in the status bar."
+        },
+        "hanblame.delay": {
+          "type": "number",
+          "default": 200,
+          "description": "Milliseconds to wait after the cursor stops moving before looking up blame."
+        },
+        "hanblame.blameDirtyFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep blame accurate in files with unsaved changes. Slightly slower on very large files."
+        },
+        "hanblame.ignoreWhitespace": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ignore whitespace-only changes when blaming, so reformatting does not hide the real author."
+        }
+      }
+    }
+  }
+}
