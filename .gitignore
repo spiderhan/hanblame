@@ -5,3 +5,18 @@ PROMPT.md
 # Packaging output
 *.vsix
 node_modules/
+
+# Mac clutter
+.DS_Store
+
+# Secrets, in case any are ever added
+.env
+.env.*
+
+# Logs and test downloads
+*.log
+npm-debug.log*
+.vscode-test/
+
+# Python cache from make-icon.py
+__pycache__/
