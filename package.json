@@ -5,6 +5,14 @@
   "version": "0.6.1",
   "publisher": "hanmade",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spiderhan/hanblame.git"
+  },
+  "homepage": "https://github.com/spiderhan/hanblame#readme",
+  "bugs": {
+    "url": "https://github.com/spiderhan/hanblame/issues"
+  },
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.75.0"

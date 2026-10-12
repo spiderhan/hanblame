@@ -1,0 +1,7 @@
+.claude/**
+.git/**
+.gitignore
+PROMPT.md
+make-icon.py
+test/**
+*.vsix
